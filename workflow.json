@@ -1,0 +1,421 @@
+{
+  "name": "Recruitment Automation for HR",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "HR Recruitment Resume Screening",
+        "formDescription": "Upload candidate resume and paste the job description for AI screening.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Candidate Name"
+            },
+            {
+              "fieldLabel": "Upload Resume (PDF)",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bf68159c-c4fa-445e-b7b3-6782990a1bdd",
+      "name": "On form submission",
+      "webhookId": "19037d56-6c4a-4da5-a2ae-ddca61ffc7b5"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "=Upload_Resume__PDF_",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4aee6311-3d34-41d6-bfc7-53acd00d692b",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI recruitment assistant for an Artificial Intelligence Engineer role.\n\nAnalyze the following resume against the job description below and return ONLY a JSON object.\n\nJOB DESCRIPTION:\nThe candidate must have knowledge of:\n- AI Automation Development\n- Prompt Engineering & LLM optimization\n- AI Tools & APIs integration\n- Workflow automation\n- Machine learning concepts\n- REST APIs and backend development\n- n8n or similar automation platforms\n\nRESUME:\n{{ $json.text }}\n\nReturn ONLY this JSON format, nothing else:\n{\n  \"candidate_name\": \"\",\n   \"candidate_email\": \"\",\n  \"skills_matched\": [],\n  \"skills_missing\": [],\n  \"experience_summary\": \"\",\n  \"match_score\": 0,\n  \"recommendation\": \"Shortlist / Maybe / Reject\"\n}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        416,
+        0
+      ],
+      "id": "c20f4fdb-8c7f-46aa-a032-102f4e754d59",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        304
+      ],
+      "id": "2a0b5e0d-c477-4239-af68-489983a94386",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "4hTUekojIY7BjOc3",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1cNHnwEuF1_73ip-wUlG6x0BpgJY1sfmrS6ibRnvaNtk",
+          "mode": "list",
+          "cachedResultName": "Recruitment Dashboard",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cNHnwEuF1_73ip-wUlG6x0BpgJY1sfmrS6ibRnvaNtk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cNHnwEuF1_73ip-wUlG6x0BpgJY1sfmrS6ibRnvaNtk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Candidate Name": "={{ JSON.parse($json.text).candidate_name }}",
+            "Match Score": "={{ JSON.parse($json.text).match_score }}",
+            "Recommendation": "={{ JSON.parse($json.text).recommendation }}",
+            "Skills Matched": "={{ JSON.parse($json.text).skills_matched.join(', ') }}",
+            "Skills Missing": "={{ JSON.parse($json.text).skills_missing.join(', ') }}",
+            "Experience Summary": "={{ JSON.parse($json.text).experience_summary }}",
+            " Submission Date": "={{ $now }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Candidate Name",
+              "displayName": "Candidate Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Match Score",
+              "displayName": "Match Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Recommendation",
+              "displayName": "Recommendation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Skills Matched",
+              "displayName": "Skills Matched",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Skills Missing",
+              "displayName": "Skills Missing",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Experience Summary",
+              "displayName": "Experience Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": " Submission Date",
+              "displayName": " Submission Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        768,
+        0
+      ],
+      "id": "d7abb3f4-4303-403b-b55e-d9a823a22077",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "yR2kPfdflFTJlWAP",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ec322c49-0803-40a4-9716-6447344159b1",
+              "leftValue": "={{ JSON.parse($('Basic LLM Chain').item.json.text).match_score }}",
+              "rightValue": 70,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        976,
+        0
+      ],
+      "id": "27001ca8-80bc-47d8-aa53-1e4f064d58f5",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        16,
+        448
+      ],
+      "id": "498d08d0-87e1-4e5d-b64c-41afd30670f9",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ JSON.parse($('Basic LLM Chain').item.json.text).candidate_email }}",
+        "subject": "Application Update: You Have Been Shortlisted — AI Engineer Role | Eastman Auto & Power",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;\">   <div style=\"background-color: #4CAF50; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;\">     <h1 style=\"color: white; margin: 0;\">Congratulations! 🎉</h1>   </div>   <div style=\"padding: 30px;\">     <p style=\"font-size: 16px;\">Dear <b>{{ JSON.parse($('Basic LLM Chain').item.json.text).candidate_name }}</b>,</p>     <p style=\"font-size: 15px; color: #333;\">Thank you for applying for the <b>Artificial Intelligence Engineer</b> position.</p>     <p style=\"font-size: 15px; color: #333;\">After carefully reviewing your profile, we are pleased to inform you that you have been <b style=\"color: #4CAF50;\">shortlisted</b> for the next round of our hiring process.</p>     <p style=\"font-size: 15px; color: #333;\">Our HR team will contact you shortly with details about the next steps.</p>     <div style=\"background-color: #f9f9f9; padding: 15px; border-left: 4px solid #4CAF50; margin: 20px 0;\">       <p style=\"margin: 0; color: #555;\">Match Score: <b>{{ JSON.parse($('Basic LLM Chain').item.json.text).match_score }}/100</b></p>     </div>     <p style=\"font-size: 15px; color: #333;\">Best regards,<br><b>HR Team</b></p>   </div> </div>",
+        "options": {
+          "senderName": "HR Team - Eastman Auto & Power"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1232,
+        -96
+      ],
+      "id": "a64e664f-edfd-43e7-8775-326c0830a235",
+      "name": "Selected Mail to Candidate",
+      "webhookId": "f742fd61-33b6-4709-94dc-f62b3058ea2e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XUWb0HsDreGLnsn9",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ JSON.parse($('Basic LLM Chain').item.json.text).candidate_email }}",
+        "subject": "=Application Update: Thank You for Applying — AI Engineer Role | Eastman Auto & Power",
+        "message": "=<div style=\"font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #dde3ee; border-radius: 6px; overflow: hidden;\">\n  <div style=\"background-color: #1a1a2e; padding: 30px 40px;\">\n    <h2 style=\"color: #ffffff; margin: 0; font-size: 20px; letter-spacing: 1px;\">EASTMAN AUTO & POWER</h2>\n    <p style=\"color: #a0aec0; margin: 4px 0 0; font-size: 13px;\">Human Resources Department</p>\n  </div>\n  <div style=\"padding: 40px;\">\n    <p style=\"font-size: 15px; color: #2d3748;\">Dear <b>{{ JSON.parse($('Basic LLM Chain').item.json.text).candidate_name }}</b>,</p>\n    <p style=\"font-size: 15px; color: #4a5568; line-height: 1.7;\">Thank you for your interest in the <b>Artificial Intelligence Engineer</b> position at Eastman Auto & Power and for taking the time to submit your application.</p>\n    <p style=\"font-size: 15px; color: #4a5568; line-height: 1.7;\">After careful consideration of your profile against our current requirements, we regret to inform you that we will not be moving forward with your application at this stage.</p>\n    <div style=\"background-color: #fff5f5; border: 1px solid #feb2b2; border-radius: 6px; padding: 16px 20px; margin: 24px 0;\">\n      <p style=\"margin: 0; font-size: 14px; color: #9b2c2c;\">Profile Match Score: <b>{{ JSON.parse($('Basic LLM Chain').item.json.text).match_score }} / 100</b></p>\n      <p style=\"margin: 8px 0 0; font-size: 14px; color: #9b2c2c;\">Status: <b>Not Selected for This Role</b></p>\n    </div>\n    <p style=\"font-size: 15px; color: #4a5568; line-height: 1.7;\">We genuinely appreciate the effort you put into your application. We encourage you to continue building your skills and welcome you to apply for future openings that match your profile.</p>\n    <p style=\"font-size: 15px; color: #4a5568; margin-top: 30px;\">Best regards,<br><b style=\"color: #2d3748;\">HR Department</b><br><span style=\"color: #718096; font-size: 13px;\">Eastman Auto & Power (EAPL)</span></p>\n  </div>\n  <div style=\"background-color: #f7fafc; padding: 16px 40px; border-top: 1px solid #dde3ee;\">\n    <p style=\"margin: 0; font-size: 12px; color: #a0aec0; text-align: center;\">This is an automated message. Please do not reply to this email.</p>\n  </div>\n</div>",
+        "options": {
+          "senderName": "HR Team - Eastman Auto & Power"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1232,
+        112
+      ],
+      "id": "bc4c5452-9ac3-4923-914f-b0453a23c3b4",
+      "name": "Rejected Mail to Candidate",
+      "webhookId": "ece2a69c-3bbc-4836-9047-0ac75bf1d302",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XUWb0HsDreGLnsn9",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "sunnyforp20@gmail.com",
+        "subject": "⚠️ Recruitment Automation Error — Immediate Attention Required",
+        "message": "=<div style=\"font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #dde3ee; border-radius: 6px; overflow: hidden;\">   <div style=\"background-color: #1a1a2e; padding: 30px 40px;\">     <h2 style=\"color: #ffffff; margin: 0; font-size: 20px; letter-spacing: 1px;\">EASTMAN AUTO & POWER</h2>     <p style=\"color: #a0aec0; margin: 4px 0 0; font-size: 13px;\">Recruitment Automation System</p>   </div>   <div style=\"padding: 40px;\">     <div style=\"background-color: #fff5f5; border: 1px solid #feb2b2; border-radius: 6px; padding: 16px 20px; margin-bottom: 24px;\">       <p style=\"margin: 0; font-size: 15px; color: #c53030;\">⚠️ <b>Workflow Error Detected</b></p>     </div>     <p style=\"font-size: 15px; color: #4a5568; line-height: 1.7;\">The recruitment automation workflow encountered an error and could not complete processing for a candidate submission.</p>     <div style=\"background-color: #f7fafc; border: 1px solid #dde3ee; border-radius: 6px; padding: 16px 20px; margin: 24px 0;\">       <p style=\"margin: 0; font-size: 14px; color: #2d3748;\"><b>Error Details:</b></p>       <p style=\"margin: 8px 0 0; font-size: 14px; color: #c53030;\">Message: {{ $json.error.message }}</p>       <p style=\"margin: 8px 0 0; font-size: 14px; color: #c53030;\">Failed Node: {{ $json.error.node.name }}</p>       <p style=\"margin: 8px 0 0; font-size: 14px; color: #718096;\">Time: {{ $now }}</p>     </div>     <p style=\"font-size: 15px; color: #4a5568; line-height: 1.7;\">Please manually review the candidate resume submitted at the time of this error and process accordingly to ensure no candidate is missed.</p>     <p style=\"font-size: 15px; color: #4a5568; margin-top: 30px;\">Regards,<br><b style=\"color: #2d3748;\">n8n Automation System</b><br><span style=\"color: #718096; font-size: 13px;\">Eastman Auto & Power (EAPL)</span></p>   </div>   <div style=\"background-color: #f7fafc; padding: 16px 40px; border-top: 1px solid #dde3ee;\">     <p style=\"margin: 0; font-size: 12px; color: #a0aec0; text-align: center;\">This is an automated error alert. Please do not reply to this email.</p>   </div> </div>",
+        "options": {
+          "senderName": "Recruitment System - Eastman Auto & Power"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        448
+      ],
+      "id": "5280d826-e2b2-4fcb-8e22-c82006f3f0e5",
+      "name": "Automation error mail sent to HR",
+      "webhookId": "fe22f056-451b-4a50-a15f-8ee8ebdb11fb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XUWb0HsDreGLnsn9",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Selected Mail to Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Rejected Mail to Candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Automation error mail sent to HR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6a47904d-efa5-4bbd-bcb9-6d1662a5bfdc",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "669eeeee9bca55364adfc0b5ea32a88265fa005f3819d6ba2e4cad2f8e9e8333"
+  },
+  "id": "dA0uzKV0z0JYBfOE",
+  "tags": []
+}
