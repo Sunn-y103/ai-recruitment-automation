@@ -22,7 +22,7 @@ n8n and Google Gemini API.
 
 ## Tech Stack
 - n8n — workflow automation engine
-- Google Gemini 1.5 Flash — LLM for resume analysis
+- Google Gemini 3.0 Flash — LLM for resume analysis
 - Google Sheets API — candidate result storage
 - Gmail API — automated email delivery
 - Google OAuth2 — authentication
@@ -32,7 +32,3 @@ n8n and Google Gemini API.
 - On failure → HR receives immediate email notification
 - Notification includes error message, failed node, timestamp
 
-## Known Limitations
-- Runs on localhost — not production deployed
-- PDF attachment not available in error emails
-- Single job role supported per workflow instance
